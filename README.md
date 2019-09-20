@@ -5,15 +5,28 @@ Mirror of the [Software Foundations](http://softwarefoundations.cis.upenn.edu/) 
 
 - B. Pierce, et al. (2019) [“Logical Foundations”](doc/pdf/lf.pdf)  
   _Version 5.6 (09 Jan 2019, Coq 8.8.2)_
-
 - B. Pierce, et al. (2019) [“Programming Language Foundations”](doc/pdf/plf.pdf)  
   _Version 5.7 (08 Feb 2019, Coq 8.8.2)_
-
 - A. Appel (2018) [“Verified Functional Algorithms”](doc/pdf/vfa.pdf)  
   _Version 1.4 (25 Aug 2018, Coq 8.8.2)_
-
 - L. Lampropoulos and B. Pierce (2018) [“QuickChick: Property-Based Testing in Coq”](doc/pdf/qc.pdf)  
   _Version 1.0 (09 Oct 2018, Coq 8.8.2)_
+
+## Progress
+
+### lf
+
+- [x] Basics
+
+- [x] Induction
+
+- [x] List
+
+- [ ] Poly
+
+### plf
+
+
 
 
 Usage
