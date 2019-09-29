@@ -22,7 +22,11 @@ Mirror of the [Software Foundations](http://softwarefoundations.cis.upenn.edu/) 
 
 - [x] List
 
-- [ ] Poly
+- [x] Poly
+
+- [x] Tactics
+
+- [ ] Logic
 
 ### plf
 
