@@ -26,7 +26,9 @@ Mirror of the [Software Foundations](http://softwarefoundations.cis.upenn.edu/) 
 
 - [x] Tactics
 
-- [ ] Logic
+- [x] Logic
+
+- [ ] IndProp
 
 ### plf
 
