@@ -2313,7 +2313,7 @@ Proof.
        { apply H0. left. reflexivity. }
        contradiction.
      + (* excluded_middlle (In x l1') seems work *)
-       
+       Admitted.
 
 
 
@@ -2463,7 +2463,24 @@ Lemma app_ne : forall (a : ascii) s re0 re1,
     ([ ] =~ re0 /\ a :: s =~ re1) \/
     exists s0 s1, s = s0 ++ s1 /\ a :: s0 =~ re0 /\ s1 =~ re1.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros.
+  split.
+  - intros. inversion H. destruct s1.
+    + left. split.
+      * assumption.
+      * simpl. assumption.
+    + right. exists s1. exists s2. simpl in H1. injection H1. intros. split.
+      * symmetry. assumption.
+      * split.
+        rewrite <- H6. assumption.
+        assumption.
+  - intros [].
+    + destruct H. replace (a :: s) with ([] ++ a :: s).
+      constructor. assumption. assumption. reflexivity.
+    + destruct H as [s0 [s1 [H1 [H2 H3]]]].
+      replace (a :: s) with (a :: s0 ++ s1).
+      apply (MApp (a::s0) _ s1 _ H2 H3). rewrite H1. reflexivity.
+Qed.
 (** [] *)
 
 (** [s] matches [Union re0 re1] iff [s] matches [re0] or [s] matches [re1]. *)
@@ -2499,9 +2516,23 @@ Lemma star_ne : forall (a : ascii) s re,
     a :: s =~ Star re <->
     exists s0 s1, s = s0 ++ s1 /\ a :: s0 =~ re /\ s1 =~ Star re.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros.
+  split.
+  - intros. remember (a :: s). remember (Star re). induction H; try discriminate.
+    + destruct s1.
+      * simpl in Heql. apply (IHexp_match2 Heql Heqr).
+      * exists s1. exists s2. simpl in Heql. injection Heql. intros. split.
+        -- symmetry. assumption.
+        -- split.
+           injection Heqr. intros. rewrite <- H3. rewrite <- H2. assumption.
+           assumption.
+  - intros. destruct H as [s0 [s1 [H1 [H2 H3]]]].
+    replace (a :: s) with (a :: s0 ++ s1).
+    + apply (MStarApp (a :: s0) s1 _ H2 H3).
+    + rewrite H1. reflexivity.
+Qed.
 (** [] *)
-
+Check reflect.
 (** The definition of our regex matcher will include two fixpoint
     functions. The first function, given regex [re], will evaluate to a
     value that reflects whether [re] matches the empty string. The
@@ -2514,7 +2545,13 @@ Definition refl_matches_eps m :=
     Complete the definition of [match_eps] so that it tests if a given
     regex matches the empty string: *)
 Fixpoint match_eps (re: @reg_exp ascii) : bool
-  (* REPLACE THIS LINE WITH ":= _your_definition_ ." *). Admitted.
+  := match re with
+     | EmptyStr => true
+     | App r1 r2 => match_eps r1 && match_eps r2
+     | Union r1 r2 => match_eps r1 || match_eps r2
+     | Star _ => true
+     | _ => false
+     end.
 (** [] *)
 
 (** **** Exercise: 3 stars, standard, optional (match_eps_refl)  
@@ -2524,7 +2561,18 @@ Fixpoint match_eps (re: @reg_exp ascii) : bool
     [ReflectT] and [ReflectF].) *)
 Lemma match_eps_refl : refl_matches_eps match_eps.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  unfold refl_matches_eps. intros.
+  induction re; simpl.
+  - constructor. intro. inversion H.
+  - constructor. constructor.
+  - constructor. intro. inversion H.
+  - replace ([]) with (([]:string) ++ ([]:string)).
+    inversion IHre1; inversion IHre2.
+    + constructor.
+      constructor. assumption. assumption.
+    + constructor. intro. inversion H3.
+      assert (s2 = []).
+      { destruct s2. reflexivity.}
 (** [] *)
 
 (** We'll define other functions that use [match_eps]. However, the
