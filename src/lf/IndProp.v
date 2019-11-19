@@ -2290,7 +2290,17 @@ Inductive repeats {X:Type} : list X -> Prop :=
     manage to do this, you will not need the [excluded_middle]
     hypothesis. *)
 
-Theorem pigeonhole_principle: forall (X:Type) (l1  l2:list X),
+Theorem Sn_less_Sm__n_less_m: forall {n m: nat},
+    S n < S m -> n < m.
+Proof.
+  intros. inversion H.
+  - constructor.
+  - destruct m.
+    + inversion H1.
+    + constructor. apply Sn_le_Sm__n_le_m. assumption.
+Qed.
+
+Theorem pigeonhole_principle: forall (X:Type) (l1 l2:list X),
    excluded_middle ->
    (forall x, In x l1 -> In x l2) ->
    length l2 < length l1 ->
@@ -2298,8 +2308,13 @@ Theorem pigeonhole_principle: forall (X:Type) (l1  l2:list X),
 Proof.
    intros X l1. induction l1 as [|x l1' IHl1'].
    - intros. inversion H1.
-   - intros. destruct l2 eqn:El2.
-     + 
+   - intros. destruct l2.
+     + assert (Hf : In x []).
+       { apply H0. left. reflexivity. }
+       contradiction.
+     + (* excluded_middlle (In x l1') seems work *)
+       
+
 
 
 (* Do not modify the following line: *)
