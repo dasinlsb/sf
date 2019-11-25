@@ -2559,6 +2559,14 @@ Fixpoint match_eps (re: @reg_exp ascii) : bool
     Now, prove that [match_eps] indeed tests if a given regex matches
     the empty string.  (Hint: You'll want to use the reflection lemmas
     [ReflectT] and [ReflectF].) *)
+Theorem app_nil_nil : forall {X: Type} (l1 l2: list X),
+    l1 ++ l2 = [] -> l1 = [] /\ l2 = [].
+Proof.
+  intros. destruct l1.
+  - simpl in H. split. reflexivity. assumption.
+  - simpl in H. discriminate.
+Qed.
+
 Lemma match_eps_refl : refl_matches_eps match_eps.
 Proof.
   unfold refl_matches_eps. intros.
@@ -2568,11 +2576,18 @@ Proof.
   - constructor. intro. inversion H.
   - replace ([]) with (([]:string) ++ ([]:string)).
     inversion IHre1; inversion IHre2.
-    + constructor.
-      constructor. assumption. assumption.
-    + constructor. intro. inversion H3.
-      assert (s2 = []).
-      { destruct s2. reflexivity.}
+    constructor.
+    constructor. assumption. assumption.
+    all: constructor; intro; inversion H3;
+      apply app_nil_nil in H4; destruct H4 as [Hs1 Hs2];
+        rewrite <- Hs1 in H0; rewrite <- Hs2 in H2; contradiction.
+  - inversion IHre1; inversion IHre2; constructor.
+    + apply MUnionL. assumption.
+    + apply MUnionL. assumption.
+    + apply MUnionR. assumption.
+    + intro. inversion H3. contradiction. contradiction.
+  - constructor. constructor.
+Qed.
 (** [] *)
 
 (** We'll define other functions that use [match_eps]. However, the
@@ -2600,7 +2615,11 @@ Definition derives d := forall a re, is_der re a (d a re).
     implementation uses [match_eps] in some cases to determine if key
     regex's match the empty string. *)
 Fixpoint derive (a : ascii) (re : @reg_exp ascii) : @reg_exp ascii
-  (* REPLACE THIS LINE WITH ":= _your_definition_ ." *). Admitted.
+  := match re with
+     | EmptySet => EmptySet
+     | EmptyStr => EmptySet
+     | Char c => if ascii c a then EmptyStr else EmptySet
+     | App r1 r2 => if match_eps r1 then 
 (** [] *)
 
 (** The [derive] function should pass the following tests. Each test
