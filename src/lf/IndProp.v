@@ -2618,8 +2618,13 @@ Fixpoint derive (a : ascii) (re : @reg_exp ascii) : @reg_exp ascii
   := match re with
      | EmptySet => EmptySet
      | EmptyStr => EmptySet
-     | Char c => if ascii c a then EmptyStr else EmptySet
-     | App r1 r2 => if match_eps r1 then 
+     | Char c => if ascii_dec c a then EmptyStr else EmptySet
+     | App r1 r2 => if match_eps r1
+                    then Union (App (derive a r1) r2) (derive a r2)
+                    else App (derive a r1) r2
+     | Union r1 r2 => Union (derive a r1) (derive a r2)
+     | Star r => App (derive a r) (Star r)
+     end.
 (** [] *)
 
 (** The [derive] function should pass the following tests. Each test
@@ -2632,45 +2637,37 @@ Example d := ascii_of_nat 100.
 
 (** "c" =~ EmptySet: *)
 Example test_der0 : match_eps (derive c (EmptySet)) = false.
-Proof.
-  (* FILL IN HERE *) Admitted.
+Proof. auto. Qed.
 
 (** "c" =~ Char c: *)
 Example test_der1 : match_eps (derive c (Char c)) = true.
-Proof.
-  (* FILL IN HERE *) Admitted.
+Proof. auto. Qed.
 
 (** "c" =~ Char d: *)
 Example test_der2 : match_eps (derive c (Char d)) = false.
-Proof.
-  (* FILL IN HERE *) Admitted.
+Proof. auto. Qed.
 
 (** "c" =~ App (Char c) EmptyStr: *)
 Example test_der3 : match_eps (derive c (App (Char c) EmptyStr)) = true.
-Proof.
-  (* FILL IN HERE *) Admitted.
+Proof. auto. Qed.
 
 (** "c" =~ App EmptyStr (Char c): *)
 Example test_der4 : match_eps (derive c (App EmptyStr (Char c))) = true.
-Proof.
-  (* FILL IN HERE *) Admitted.
+Proof. auto. Qed.
 
 (** "c" =~ Star c: *)
 Example test_der5 : match_eps (derive c (Star (Char c))) = true.
-Proof.
-  (* FILL IN HERE *) Admitted.
+Proof. auto. Qed.
 
 (** "cd" =~ App (Char c) (Char d): *)
 Example test_der6 :
   match_eps (derive d (derive c (App (Char c) (Char d)))) = true.
-Proof.
-  (* FILL IN HERE *) Admitted.
+Proof. auto. Qed.
 
 (** "cd" =~ App (Char d) (Char c): *)
 Example test_der7 :
   match_eps (derive d (derive c (App (Char d) (Char c)))) = false.
-Proof.
-  (* FILL IN HERE *) Admitted.
+Proof. auto. Qed.
 
 (** **** Exercise: 4 stars, standard, optional (derive_corr)  
 
@@ -2693,9 +2690,26 @@ Proof.
     regex's (e.g., [s =~ re0 \/ s =~ re1]) using lemmas given above
     that are logical equivalences. You can then reason about these
     [Prop]'s naturally using [intro] and [destruct]. *)
+Theorem derive_reduce : forall {a: ascii} {s: string} {re: @reg_exp ascii},
+    a :: s =~ re -> s =~ derive a re.
+Proof.
+  intros. induction re.
+  - inversion H.
+  - inversion H.
+  - 
+    
+
+
+Theorem derive_append : forall {a: ascii} {s: string} {re: @reg_exp ascii},
+    s =~ derive a re -> a :: s =~ re.
+Proof.
+  Admitted.
+
 Lemma derive_corr : derives derive.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  unfold derives. unfold is_der.
+  split. apply derive_reduce. apply derive_append.
+Qed.
 (** [] *)
 
 (** We'll define the regex matcher using [derive]. However, the only
